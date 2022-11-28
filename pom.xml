@@ -8,11 +8,7 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<android.version>4.1.1.4</android.version>
-		<android.maven.version>3.8.1</android.maven.version>
-		<gwt.version>2.6.0</gwt.version>
-		<gwt.maven.version>2.6.0</gwt.maven.version>
-		<gdx.version>1.9.10</gdx.version>
+		<gdx.version>1.11.0</gdx.version>
 		<java.version>1.8</java.version>
 	</properties>
 	<dependencyManagement>

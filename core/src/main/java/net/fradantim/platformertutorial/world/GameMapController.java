@@ -3,7 +3,9 @@ package net.fradantim.platformertutorial.world;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Collectors;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -19,6 +21,7 @@ import net.fradantim.platformertutorial.entities.Entity.EntityLayer;
 import net.fradantim.platformertutorial.entities.EntityLoader;
 import net.fradantim.platformertutorial.entities.EntityType;
 import net.fradantim.platformertutorial.entities.Hitable;
+import net.fradantim.platformertutorial.util.Operation;
 import net.fradantim.platformertutorial.world.map.GameMap;
 
 public abstract class GameMapController implements StadisticsFeed, Renderizable {
@@ -29,17 +32,18 @@ public abstract class GameMapController implements StadisticsFeed, Renderizable 
 	protected int CHUNK_SIZE = 8;
 
 	private static final float GRAVITY = -9.8F;
-	protected List<Entity> entities;
+	protected List<Entity> entities = new ArrayList<>();
+	protected Queue<Entity> entitiesToAdd = new ConcurrentLinkedQueue<>(); // entities to add in the next update
+	// actions to perform with the new created entities (in OpenGL thread)
+	protected Queue<Operation> operationsToPerform = new ConcurrentLinkedQueue<>();
 
 	protected GameMap map;
 
 	private Entity player;
 
 	public GameMapController() {
-		entities = new CopyOnWriteArrayList<Entity>();
-
-		entities.addAll(EntityLoader.loadEntities("entities", this));
-		for (Entity entity : entities) {
+		for (Entity entity : EntityLoader.loadEntities("entities", this)) {
+			entities.add(entity);
 			if (entity.getType().equals(EntityType.PLAYER))
 				player = entity;
 		}
@@ -143,9 +147,15 @@ public abstract class GameMapController implements StadisticsFeed, Renderizable 
 	}
 
 	public void update(float deltaTime) {
-		for (Entity entity : entities) {
-			entity.update(deltaTime, GRAVITY);
-		}
+		List<Entity> entitiesToRemove = entities.parallelStream().peek(e -> e.update(deltaTime, GRAVITY))
+				.filter(Entity::isDead).collect(Collectors.toList());
+
+		entities.removeAll(entitiesToRemove);
+		entities.addAll(entitiesToAdd);
+		entitiesToAdd.clear();
+
+		operationsToPerform.forEach(Operation::operate);
+		operationsToPerform.clear();
 	}
 
 	public abstract void dispose();
@@ -258,13 +268,13 @@ public abstract class GameMapController implements StadisticsFeed, Renderizable 
 		return getHeight() * getTileHeight(globalScale);
 	}
 
-	public void removeEntity(Entity entity) {
-		entities.remove(entity);
-		entity = null;
+	public void addEntity(Entity entity) {
+		entitiesToAdd.add(entity);
 	}
 
-	public void addEntity(Entity entity) {
-		entities.add(entity);
+	public void addEntity(Entity entity, Operation afterAdd) {
+		addEntity(entity);
+		operationsToPerform.add(afterAdd);
 	}
 
 	@Override

@@ -35,7 +35,7 @@ public class AnimatedState {
 		this.dead = dead;
 	}
 	
-	public AnimationImpl toAnimationImpl(float frameDuration) throws IOException {
-		return new AnimationImpl(image, frameDuration, rewind);
+	public AnimationImpl toAnimationImpl(float frameDuration) {
+		return AnimationImpl.fromImage(image, frameDuration, rewind);
 	}
 }

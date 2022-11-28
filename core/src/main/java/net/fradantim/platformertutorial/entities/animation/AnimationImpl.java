@@ -1,14 +1,11 @@
 package net.fradantim.platformertutorial.entities.animation;
 
-import java.io.File;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+
+import net.fradantim.platformertutorial.util.ImageUtil;
 
 public class AnimationImpl {
 
@@ -42,12 +39,12 @@ public class AnimationImpl {
 	}
 	
 	/**
-	 * Construccion para animaciones del mismo alto que ancho. La animacion tiene que estar en frames horizontales 
-	 * @param imagePath
-	 * @throws IOException
+	 * Construccion para animaciones del mismo alto que ancho. La animacion tiene
+	 * que estar en frames horizontales
 	 */
-	public AnimationImpl (String imagePath, float frameDuration, boolean rewind) throws IOException {
-		this(imagePath, frameDuration, rewind, ImageIO.read(AnimationImpl.class.getClassLoader().getResourceAsStream(imagePath)).getHeight(),ImageIO.read(AnimationImpl.class.getClassLoader().getResourceAsStream(imagePath)).getHeight());
+	public static AnimationImpl fromImage(String imagePath, float frameDuration, boolean rewind) {
+		int height = ImageUtil.getImageHeight(imagePath);
+		return new AnimationImpl(imagePath, frameDuration, rewind, height, height);
 	}
 	
 	public TextureRegion getActualTextureRegion() {

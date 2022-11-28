@@ -1,12 +1,10 @@
 package net.fradantim.platformertutorial.entities;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -18,7 +16,6 @@ import com.badlogic.gdx.math.Vector2;
 import net.fradantim.platformertutorial.Renderizable;
 import net.fradantim.platformertutorial.Stadistic;
 import net.fradantim.platformertutorial.StadisticsFeed;
-import net.fradantim.platformertutorial.entities.Entity.Direction;
 import net.fradantim.platformertutorial.entities.animation.AnimatedState;
 import net.fradantim.platformertutorial.entities.animation.AnimationImpl;
 import net.fradantim.platformertutorial.world.GameMapController;
@@ -26,17 +23,11 @@ import net.fradantim.platformertutorial.world.GameMapController;
 public abstract class Entity implements StadisticsFeed, Renderizable{
 	
 	public enum EntityLayer{
-		/**
-		 * elementos fijos del fondo, todo lo tapa
-		 */
+		/** Elementos fijos del fondo, todo lo tapa */
 		BACK, 
-		/**
-		 * elementos fijos o moviles
-		 */
+		/** elementos fijos o moviles */
 		BEHIND,
-		/**
-		 * elementos moviles, tapa todo
-		 */
+		/** Elementos moviles, tapa todo */
 		FRONT;
 		
 		private EntityLayer lower, upper;
@@ -182,12 +173,7 @@ public abstract class Entity implements StadisticsFeed, Renderizable{
 	private void loadAnimations() {
 		animations = new HashMap<>();
 		for(AnimatedState state : getAnimatedStates()) {
-			try {
-				animations.put(state, state.toAnimationImpl(ANIMATION_FRAME_DURATION));
-			} catch (IOException e) {
-				Gdx.app.error(this.getClass().getSimpleName(), "Could not load Animation in " + state.getImage());
-				e.printStackTrace();
-			}
+			animations.put(state, state.toAnimationImpl(ANIMATION_FRAME_DURATION));
 		}
 	}
 	
